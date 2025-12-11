@@ -1,13 +1,24 @@
-# Objectives
+# Platform Fighter - Frame-Oriented Game Prototype
 
-My objective with this project is to create a frame-oriented platform fighter.
+This repository a personal study project of mine: a **frame-based platform fighter from scratch** in C++ using **raylib** game engine.
+My goal is to understand and implement the core architectural foundations used in professional fighting games such as **Street Fighter**, **Guilty Gear Strive** and others. The topics I aim to cover in this project are:
 
-The main purpose of this is to understand the industry standards when creating
-these kind of games. We have examples like Street Fighter, Guilty Gear Strive
-and many others good creations with stable connection and fluid gameplay with
-little to almost no critical bugs. If I could, with this project, recreate even
-1/10 of such code architecture/ structure I'd be satisfied. 
+- Fixed-step 60 FPS simulation
+- Frame-accurate mechanics
+- Deterministic gameplay
+- Rollback-friendly architecture
+- Clean separation between game state, rendering, and input
 
-# Configurations
+If I can recreate even a tenth of the actual structural quality found in the titles cited, this project will already be a success.
 
-- Created following [this video](https://www.youtube.com/watch?v=AniAoJC6QAc)
+---
+
+# Dependencies and Game Engine
+
+- **C++17**
+- **raylib** (only for windowing, rendering, and input)
+- **MinGW / MSYS2** for compilation
+- **Makefile**-based build system
+
+For the initial setup I followed this guide:
+[https://www.youtube.com/watch?v=AniAoJC6QAc](https://www.youtube.com/watch?v=AniAoJC6QAc)
