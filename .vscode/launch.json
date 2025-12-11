@@ -27,14 +27,14 @@
       "name": "Debug windows",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build/win/main.exe",
+      "program": "${workspaceFolder}/main.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",
-      "miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe",
+      "miDebuggerPath": "C:/users/gabga/dev-dependencies/msys64/ucrt64/bin/gdb.exe",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
