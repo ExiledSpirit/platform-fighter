@@ -1,5 +1,5 @@
 #include "game_app.h"
-#include "config.h";
+#include "config.h"
 
 GameApp::GameApp()
   : frameController(eventBus)
