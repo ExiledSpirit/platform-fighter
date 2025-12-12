@@ -1,13 +1,15 @@
-# Compiler and flags
 CXX      = g++
-CXXFLAGS = -Iinclude -std=c++17 -Wall -Wextra -g
-LDFLAGS  = -Llib -lraylib -lgdi32 -lwinmm
+CXXFLAGS = -I"$(CURDIR)/include" -std=c++17 -Wall -Wextra -g
+LDFLAGS  = -L"$(CURDIR)/lib" -lraylib -lgdi32 -lwinmm
 
-# Sources / objects
-SRC = $(wildcard src/*.cpp)
-OBJ = $(SRC:src/%.cpp=build/%.o)
+SRC_WIN := $(shell dir /s /b "$(CURDIR)\src\*.cpp" 2>nul)
+SRC     := $(subst \,/,$(SRC_WIN))
 
-OUT = main.exe
+# Convert absolute src path -> relative src path for OBJ mapping:
+SRC_REL := $(patsubst $(CURDIR)/%,%,$(SRC))
+
+OBJ := $(patsubst src/%.cpp,build/%.o,$(SRC_REL))
+OUT := main.exe
 
 default: $(OUT)
 
@@ -15,9 +17,9 @@ $(OUT): $(OBJ)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 build/%.o: src/%.cpp
-	@if not exist build mkdir build
+	@if not exist "$(subst /,\,$(dir $@))" mkdir "$(subst /,\,$(dir $@))"
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	del /Q build\*.o 2>nul
-	del /Q $(OUT) 2>nul
+	@if exist build rmdir /S /Q build
+	@if exist $(OUT) del /Q $(OUT)

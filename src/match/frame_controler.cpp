@@ -1,52 +1,56 @@
-#include "frame_controller.h"
+#include "match/frame_controller.h"
 
-FrameController::FrameController(EventBus& eventBus)
+namespace match {
+
+FrameController::FrameController(core::EventBus& eventBus)
   : events(eventBus)
 {
-  currentState.mode = GameMode::Playing;
+  currentState.mode = game::GameMode::Playing;
   currentState.ball = ball.getState();
 }
 
-void FrameController::step(const InputFrame& input)
+void FrameController::step(const game::InputFrame& input)
 {
-  if (currentState.mode == GameMode::MainMenu)
+  if (currentState.mode == game::GameMode::MainMenu)
   {
     if (input.reset) // Handles reset
     {
-      changeMode(GameMode::Playing); // Reset
+      changeMode(game::GameMode::Playing); // Reset
     }
     return;
   }
 
-  if (currentState.mode == GameMode::Paused)
+  if (currentState.mode == game::GameMode::Paused)
   {
     if (input.pause) // Handles pause
     {
-      changeMode(GameMode::Playing); // Unpause
+      changeMode(game::GameMode::Playing); // Unpause
     }
     return;
   }
 
   if (input.pause)
   {
-    changeMode(GameMode::Paused); // Pause
+    changeMode(game::GameMode::Paused); // Pause
     return;
   }
 
   applyInputAndSimulate(input);
 }
-void FrameController::applyInputAndSimulate(const InputFrame& input)
+void FrameController::applyInputAndSimulate(const game::InputFrame& input)
 {
   ball.setState(currentState.ball);
   ball.Update(input);
   currentState.ball = ball.getState();
 }
 
-void FrameController::changeMode(GameMode newMode)
+void FrameController::changeMode(game::GameMode newMode)
 {
   if (currentState.mode == newMode) return;
   currentState.mode = newMode;
 
-  Event e{ EventType::GameModeChanged };
+  core::Event e{ core::EventType::GameModeChanged };
   events.emit(e);
 }
+
+} //namespace match

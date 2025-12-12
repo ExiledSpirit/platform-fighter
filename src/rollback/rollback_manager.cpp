@@ -1,10 +1,12 @@
-#include "rollback_manager.h"
+#include "rollback/rollback_manager.h"
 
-void RollbackManager::saveState(uint32_t frame, const SimState& state, const InputFrame& input) {
+namespace rollback {
+
+void RollbackManager::saveState(uint32_t frame, const sim::SimState& state, const game::InputFrame& input) {
 
 }
 
-bool RollbackManager::loadState(uint32_t frame, SimState& outState, InputFrame& outInput) const {
+bool RollbackManager::loadState(uint32_t frame, sim::SimState& outState, game::InputFrame& outInput) const {
   const size_t index = frame % MAX_FRAMES;
   const auto& slot = buffer[index]; 
 
@@ -16,3 +18,5 @@ bool RollbackManager::loadState(uint32_t frame, SimState& outState, InputFrame& 
   outInput = slot.input;
   return true;
 }
+
+} //namespace rollback

@@ -1,11 +1,14 @@
-#include "ball.h"
+#include "entities/ball.h"
+#include "raylib.h"
+
+namespace entities {
 
 Ball::Ball() {
   position = {0.0f, 0.0f};
   velocity = {0.0f, 0.0f};
 }
 
-void Ball::Update(const InputFrame& input) {
+void Ball::Update(const game::InputFrame& input) {
   const float speed = 4.0f;
 
   if (input.moveLeft) position.x -= speed;
@@ -18,11 +21,13 @@ void Ball::Draw() const {
   DrawCircleV(position, 20.0f, RAYWHITE); // TODO: update with sprite later.
 }
 
-BallState Ball::getState() const {
-  return BallState{ position, velocity };
+sim::BallState Ball::getState() const {
+  return sim::BallState{ position, velocity };
 }
 
-void Ball::setState(const BallState& s) {
+void Ball::setState(const sim::BallState& s) {
   position = s.position;
   velocity = s.velocity;
 }
+
+} // namespace entities

@@ -2,6 +2,8 @@
 #include <vector>
 #include <functional>
 
+namespace core
+{
 /** Event types: GameModeChanged, KeyPressed, etc */
 enum class EventType {
   // When we change game modes: MainMenu -> Playing.
@@ -30,3 +32,5 @@ public:
 private:
   std::vector<Listener> listeners;
 };
+
+} // namespace core

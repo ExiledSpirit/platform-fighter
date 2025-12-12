@@ -1,8 +1,12 @@
 #pragma once
-#include "game_types.h"
+#include "game/game_types.h"
+
+namespace input {
 
 class InputSystem
 {
 public:
-  InputFrame sampleCurrentFrame() const;
+  game::InputFrame sampleCurrentFrame() const;
 };
+
+} // namespace input 
