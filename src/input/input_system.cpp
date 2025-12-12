@@ -1,9 +1,11 @@
-#include "input_system.h"
+#include "input/input_system.h"
 #include "raylib.h"
 
-InputFrame InputSystem::sampleCurrentFrame() const
+namespace input {
+
+game::InputFrame InputSystem::sampleCurrentFrame() const
 {
-  InputFrame input{};
+  game::InputFrame input{};
 
   input.moveLeft = IsKeyDown(KEY_LEFT);
   input.moveRight = IsKeyDown(KEY_RIGHT);
@@ -14,3 +16,5 @@ InputFrame InputSystem::sampleCurrentFrame() const
 
   return input;
 }
+
+} // input

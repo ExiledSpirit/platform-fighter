@@ -1,13 +1,13 @@
+#include "game/config.h"
+#include "app/game_app.h"
 #include "raylib.h"
-#include "config.h"
-#include "game_app.h"
 
 int main()
 {
     InitWindow(GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT, "hello world!");
     SetTargetFPS(GameConfig::TARGET_FPS);
 
-    GameApp app;
+    app::GameApp app;
   
     while (!WindowShouldClose())
     {

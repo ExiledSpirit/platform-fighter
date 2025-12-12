@@ -1,5 +1,7 @@
 #pragma once
 
+namespace game {
+
 // manage screens
 enum class GameMode {
   MainMenu,
@@ -16,3 +18,5 @@ struct InputFrame {
   bool pause = false;
   bool reset = false;
 };
+ 
+} // namespace game

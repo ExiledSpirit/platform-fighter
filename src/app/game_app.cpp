@@ -1,28 +1,30 @@
-#include "game_app.h"
-#include "config.h";
+#include "app/game_app.h"
+#include "game/config.h"
+
+namespace app {
 
 GameApp::GameApp()
   : frameController(eventBus)
 {
   // starts in menu
-  mode = GameMode::MainMenu;
+  mode = game::GameMode::MainMenu;
 }
 
 void GameApp::update()
 {
   // stores current frame inputs
-  InputFrame input = this->inputSystem.sampleCurrentFrame();
+  game::InputFrame input = this->inputSystem.sampleCurrentFrame();
 
   // handles each game mode individually
   switch(mode)
   {
-    case GameMode::MainMenu:
+    case game::GameMode::MainMenu:
       updateMenu(input);
       break;
-    case GameMode::Playing:
+    case game::GameMode::Playing:
       frameController.step(input);
       break;
-    case GameMode::Paused:
+    case game::GameMode::Paused:
       updateMenu(input);
       break;
   }
@@ -35,13 +37,13 @@ void GameApp::render()
 
   switch (mode)
   {
-    case GameMode::MainMenu:
+    case game::GameMode::MainMenu:
       renderMenu();
       break;
-    case GameMode::Playing:
+    case game::GameMode::Playing:
       frameController.getBall().Draw();
       break;
-    case GameMode::Paused:
+    case game::GameMode::Paused:
       frameController.getBall().Draw();
       break;
   }
@@ -49,7 +51,7 @@ void GameApp::render()
   EndDrawing();
 }
 
-void GameApp::updateMenu(const InputFrame& input)
+void GameApp::updateMenu(const game::InputFrame& input)
 {
   if (input.reset)
   {
@@ -64,11 +66,13 @@ void GameApp::renderMenu()
 
 void GameApp::startMatch()
 {
-  mode = GameMode::Playing;
+  mode = game::GameMode::Playing;
   // Reset frame controller and simulation state, maybe other stuffs
 }
 
 void GameApp::endMatch()
 {
-  mode = GameMode::MainMenu;
+  mode = game::GameMode::MainMenu;
 }
+
+} // namespace app
