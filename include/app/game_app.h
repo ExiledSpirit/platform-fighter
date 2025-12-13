@@ -31,6 +31,7 @@ private:
 
   std::unique_ptr<core::Screen> createScreen(game::ScreenId id);
   void applyPendingRequest();
+  void drawFPSCounter();
 };
 
 } // namespace app

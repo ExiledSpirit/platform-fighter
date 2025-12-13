@@ -3,6 +3,8 @@
 #include "input/context.h"
 #include "screens/main_menu_screen.h"
 #include "screens/game_screen.h"
+#include <stdio.h>
+#include "raylib.h"
 
 namespace app {
 
@@ -64,6 +66,17 @@ void GameApp::update() {
 
 void GameApp::render() {
   screenStack.renderTop();
+  drawFPSCounter();
+}
+
+void GameApp::drawFPSCounter() {
+  const int fps = GetFPS();
+  const float ms = GetFrameTime() * 1000.0f;
+  
+  char buf[64];
+  snprintf(buf, sizeof(buf), "FPS: %d (%.2f ms)", fps, ms);
+
+  DrawText(buf, 10, 10, 18, GREEN);
 }
 
 } // namespace app
