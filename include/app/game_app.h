@@ -1,8 +1,14 @@
 #pragma once
-#include "game/game_types.h"
+#include <optional>
+#include <memory>
+
+#include "core/screen_stack.h"
 #include "core/event_bus.h"
-#include "match/frame_controller.h"
+#include "core/screen_request.h"
+#include "game/screen_id.h"
+
 #include "input/input_system.h"
+#include "input/input_router.h"
 
 namespace app
 {
@@ -15,17 +21,16 @@ public:
   void update();
   void render();
 private:
-  game::GameMode mode = game::GameMode::MainMenu; // starts on menu
-
-  core::EventBus eventBus;
   input::InputSystem inputSystem;
+  input::InputRouter inputRouter;
 
-  match::FrameController frameController;
+  core::EventBus eventBus; // handle listeners
+  core::ScreenStack screenStack;
 
-  void updateMenu(const game::InputFrame& input);
-  void renderMenu();
-  void startMatch();
-  void endMatch();
+  std::optional<core::ScreenRequest> pendingRequest;
+
+  std::unique_ptr<core::Screen> createScreen(game::ScreenId id);
+  void applyPendingRequest();
 };
 
 } // namespace app

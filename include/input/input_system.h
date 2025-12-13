@@ -1,12 +1,12 @@
 #pragma once
-#include "game/game_types.h"
 
 namespace input {
 
-class InputSystem
-{
+class InputSystem {
 public:
-  game::InputFrame sampleCurrentFrame() const;
+    bool isKeyDown(int key) const;
+    bool isKeyPressed(int key) const;
+    bool isKeyReleased(int key) const;
 };
 
-} // namespace input 
+} // namespace input

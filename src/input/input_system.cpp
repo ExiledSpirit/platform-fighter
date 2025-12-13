@@ -3,18 +3,8 @@
 
 namespace input {
 
-game::InputFrame InputSystem::sampleCurrentFrame() const
-{
-  game::InputFrame input{};
+bool InputSystem::isKeyDown(int key) const { return IsKeyDown(key); }
+bool InputSystem::isKeyPressed(int key) const { return IsKeyPressed(key); }
+bool InputSystem::isKeyReleased(int key) const { return IsKeyReleased(key); }
 
-  input.moveLeft = IsKeyDown(KEY_LEFT);
-  input.moveRight = IsKeyDown(KEY_RIGHT);
-  input.moveDown = IsKeyDown(KEY_DOWN);
-  input.moveUp = IsKeyDown(KEY_UP);
-  input.pause = IsKeyDown(KEY_P);
-  input.reset = IsKeyDown(KEY_R);
-
-  return input;
-}
-
-} // input
+} // namespace input

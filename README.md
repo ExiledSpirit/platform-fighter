@@ -13,6 +13,13 @@ If I can recreate even a tenth of the actual structural quality found in the tit
 
 ---
 
+# How to run
+
+Ensure you have makefile installed so you can compile by just running make on your bash. After that, a main.exe will
+appear in the root directory, execute it and voilà.
+
+---
+
 # Dependencies and Game Engine
 
 - **C++17**

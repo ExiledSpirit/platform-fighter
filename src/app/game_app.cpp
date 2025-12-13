@@ -1,78 +1,69 @@
 #include "app/game_app.h"
-#include "game/config.h"
+
+#include "input/context.h"
+#include "screens/main_menu_screen.h"
+#include "screens/game_screen.h"
 
 namespace app {
 
 GameApp::GameApp()
-  : frameController(eventBus)
+  : inputRouter(inputSystem)
 {
-  // starts in menu
-  mode = game::GameMode::MainMenu;
+  inputRouter.setContext(input::Context::UI);
+
+  eventBus.subscribeScreenRequests([this](const core::ScreenRequest& req) {
+    // Defer: apply after update
+    pendingRequest = req;
+  });
+
+  // Starts in Main Menu
+  screenStack.push(createScreen(game::ScreenId::MainMenu));
 }
 
-void GameApp::update()
-{
-  // stores current frame inputs
-  game::InputFrame input = this->inputSystem.sampleCurrentFrame();
+std::unique_ptr<core::Screen> GameApp::createScreen(game::ScreenId id) {
+  switch (id) {
+    case game::ScreenId::MainMenu:
+      return std::make_unique<screens::MainMenuScreen>(eventBus);
+    case game::ScreenId::Game:
+      return std::make_unique<screens::GameScreen>();
+    default:
+      return nullptr;
+  }
+}
 
-  // handles each game mode individually
-  switch(mode)
-  {
-    case game::GameMode::MainMenu:
-      updateMenu(input);
+void GameApp::applyPendingRequest() {
+  // check if there's a pending request
+  if (!pendingRequest.has_value()) return;
+
+  // stores a ptr to the request
+  const auto req = *pendingRequest;
+
+  switch (req.type) {
+    case core::ScreenRequestType::Push:
+      screenStack.push(createScreen(req.target));
       break;
-    case game::GameMode::Playing:
-      frameController.step(input);
+    case core::ScreenRequestType::Pop:
+      screenStack.pop();
       break;
-    case game::GameMode::Paused:
-      updateMenu(input);
+    case core::ScreenRequestType::Replace:
+      screenStack.replace(createScreen(req.target));
       break;
   }
 }
 
-void GameApp::render()
-{
-  BeginDrawing();
-  ClearBackground(GameConfig::CLEAR_COLOR);
+void GameApp::update() {
+  auto* top = screenStack.top();
+  if (!top) return;
 
-  switch (mode)
-  {
-    case game::GameMode::MainMenu:
-      renderMenu();
-      break;
-    case game::GameMode::Playing:
-      frameController.getBall().Draw();
-      break;
-    case game::GameMode::Paused:
-      frameController.getBall().Draw();
-      break;
-  }
+  inputRouter.routeTo(*top);
 
-  EndDrawing();
+  screenStack.updateTop();
+
+  applyPendingRequest();
 }
 
-void GameApp::updateMenu(const game::InputFrame& input)
-{
-  if (input.reset)
-  {
-    startMatch();
-  }
-}
-
-void GameApp::renderMenu()
-{
-  DrawText("MAIN MENU!!!", 100, 100, 20, RAYWHITE);
-}
-
-void GameApp::startMatch()
-{
-  mode = game::GameMode::Playing;
-  // Reset frame controller and simulation state, maybe other stuffs
-}
-
-void GameApp::endMatch()
-{
-  mode = game::GameMode::MainMenu;
+void GameApp::render() {
+  screenStack.renderTop();
 }
 
 } // namespace app
