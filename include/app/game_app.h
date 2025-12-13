@@ -1,8 +1,7 @@
 #pragma once
-#include "game/game_types.h"
-#include "core/event_bus.h"
-#include "match/frame_controller.h"
+#include "screens/main_menu_screen.h"
 #include "input/input_system.h"
+#include "input/input_router.h"
 
 namespace app
 {
@@ -15,17 +14,10 @@ public:
   void update();
   void render();
 private:
-  game::GameMode mode = game::GameMode::MainMenu; // starts on menu
-
-  core::EventBus eventBus;
   input::InputSystem inputSystem;
+  input::InputRouter inputRouter;
 
-  match::FrameController frameController;
-
-  void updateMenu(const game::InputFrame& input);
-  void renderMenu();
-  void startMatch();
-  void endMatch();
+  screens::MainMenuScreen mainMenu;
 };
 
 } // namespace app
