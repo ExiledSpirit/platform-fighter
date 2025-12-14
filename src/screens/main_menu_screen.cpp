@@ -57,19 +57,21 @@ void MainMenuScreen::render() {
     // Screen rect
     ui::Rect screen { 0, 0, (float)GetScreenWidth(), (float)GetScreenHeight() };
 
-    // Centered menu panel (responsive-ish)
-    ui::Rect panel = ui::place(screen, ui::Anchor::Center, 560, 300, 0);
-    ui::drawPanel(screen);
-    ui::drawPanel(panel, "MAIN MENU");
+    ClearBackground(t.bg);
 
-    // Inner content
-    ui::Rect inner = ui::inset(panel, t.panelPad);
+    // Title
+    ui::Rect titleRect { 0, 60.0f, screen.w, 50.0f };
+    ui::drawTextCentered(titleRect, "MAIN MENU", t.titleSize, t.titleColor);
+    
+    // Centered menu column
+    const float menuW = 420.0f;
+    const float menuH = 200.0f;
+    ui::Rect menuArea = ui::place(screen, ui::Anchor::Center, menuW, menuH, 0.0f);
 
-    // Menu area inside the panel
-    ui::Rect menuArea { inner.x, inner.y + 60.0f, inner.w, 140.0f };
+    // Move menu a bit upwards
+    menuArea.y -= 50.0f;
 
-    // Per-item offsets for shake
-    std::vector<float> offsets(items.size(), 0.0f);
+    std::vector<float> offsets (items.size(), 0.0f);
     if (shakingIndex >= 0 && shakingIndex < (int)offsets.size()) {
         offsets[shakingIndex] = computeShakeOffsetX();
     }

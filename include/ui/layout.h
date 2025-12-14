@@ -26,4 +26,13 @@ inline std::vector<Rect> vstack(Rect container, int count, float itemH, float ga
   return out;
 }
 
+inline Rect hcenter(Rect bounds, float w, float y, float h) {
+  return Rect{
+    bounds.x + (bounds.w - w) * 0.5f,
+    y,
+    h,
+    w
+  };
+}
+
 } // namespace ui
