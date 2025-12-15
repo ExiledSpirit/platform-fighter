@@ -3,7 +3,7 @@
 
 namespace screens {
 
-class GameScreen : public core::Screen {
+class MatchScreen : public core::Screen {
 public:
   void update() override;
   void render() override;

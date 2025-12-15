@@ -2,7 +2,7 @@
 
 #include "input/context.h"
 #include "screens/main_menu_screen.h"
-#include "screens/game_screen.h"
+#include "screens/match_screen.h"
 #include <stdio.h>
 #include "raylib.h"
 
@@ -27,7 +27,7 @@ std::unique_ptr<core::Screen> GameApp::createScreen(game::ScreenId id) {
     case game::ScreenId::MainMenu:
       return std::make_unique<screens::MainMenuScreen>(eventBus);
     case game::ScreenId::Game:
-      return std::make_unique<screens::GameScreen>();
+      return std::make_unique<screens::MatchScreen>();
     default:
       return nullptr;
   }
