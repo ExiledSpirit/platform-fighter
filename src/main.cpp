@@ -16,7 +16,6 @@ int main() {
         app.update();
 
         BeginDrawing();
-        ClearBackground(GameConfig::CLEAR_COLOR);
         app.render();
         EndDrawing();
     }

@@ -1,12 +1,12 @@
 #pragma once
-#include "sim/ball_state.h"
-#include "game/game_types.h"
+#include <cstdint>
+#include "sim/character_state.h"
 
 namespace sim {
 
 struct SimState {
-  game::GameMode mode;
-  sim::BallState ball;
+    std::uint32_t frame = 0;
+    CharacterState p1;
 };
 
-} //namespace sim
+} // namespace sim

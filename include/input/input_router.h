@@ -2,6 +2,7 @@
 #include "input/context.h"
 #include "input/ui_action.h"
 #include "input/input_system.h"
+#include "input/game_input.h"
 
 namespace core { class Screen; }
 
@@ -15,6 +16,7 @@ public:
   Context getContext() const;
 
   void routeTo(core::Screen& screen);
+  input::GameInputFrame sampleGameplay() const;
 private:
   InputSystem& input;
   Context context = Context::UI;

@@ -1,4 +1,5 @@
 #include "input/input_router.h"
+#include "input/game_input.h"
 #include "core/screen.h"
 #include "raylib.h"
 
@@ -32,4 +33,12 @@ void InputRouter::routeUI(core::Screen& screen) {
     emitPressed(UIAction::Back, KEY_ESCAPE);
 }
 
+input::GameInputFrame input::InputRouter::sampleGameplay() const {
+    input::GameInputFrame f;
+    f.set(GameAction::Left,  input.isKeyDown(KEY_A) || input.isKeyDown(KEY_LEFT));
+    f.set(GameAction::Right, input.isKeyDown(KEY_D) || input.isKeyDown(KEY_RIGHT));
+    f.set(GameAction::Jump,  input.isKeyDown(KEY_SPACE));
+    f.set(GameAction::Attack,input.isKeyDown(KEY_J));
+    return f;
+}
 } // namespace input

@@ -27,7 +27,7 @@ std::unique_ptr<core::Screen> GameApp::createScreen(game::ScreenId id) {
     case game::ScreenId::MainMenu:
       return std::make_unique<screens::MainMenuScreen>(eventBus);
     case game::ScreenId::Game:
-      return std::make_unique<screens::MatchScreen>();
+      return std::make_unique<screens::MatchScreen>(eventBus, inputRouter);
     default:
       return nullptr;
   }
@@ -39,6 +39,7 @@ void GameApp::applyPendingRequest() {
 
   // stores a ptr to the request
   const auto req = *pendingRequest;
+  pendingRequest.reset();
 
   switch (req.type) {
     case core::ScreenRequestType::Push:
