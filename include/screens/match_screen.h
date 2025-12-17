@@ -4,6 +4,7 @@
 #include "input/input_router.h"
 #include "match/frame_controller.h"
 #include "match/replay.h"
+#include "world/stage.h"
 
 namespace screens {
 
@@ -20,6 +21,7 @@ private:
     core::EventBus& events;
     input::InputRouter& inputRouter;
 
+    world::Stage stage;
     match::FrameController fc;
     match::Replay replay;
 
@@ -27,6 +29,7 @@ private:
     bool showDebug = true;
 
     void resetMatch();
+    void renderCollisionsBoxes();
 };
 
 } // namespace screens

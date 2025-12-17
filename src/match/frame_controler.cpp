@@ -2,83 +2,67 @@
 #include <algorithm>
 
 namespace match {
+FrameController::FrameController(const world::Stage& s)
+    : stage(s)
+{
+    st.players.resize(1);
+    auto& p = st.players[0];
 
-FrameController::FrameController() {
-    st.frame = 0;
-    st.p1.x = 200.0f;
-    st.p1.y = 200.0f;
+    p.body.pos = { 200, 200 };
+    p.body.halfSize = { 16, 16 };
 }
 
-void FrameController::step(const input::GameInputFrame& p1Input) {
-    stepCharacter(st.p1, p1Input);
+void FrameController::step(const input::GameInputFrame& in) {
+    stepCharacter(st.players[0], in);
+    physics.step(st.players[0].body, stage);
     st.frame++;
 }
 
 void FrameController::stepCharacter(sim::CharacterState& c, const input::GameInputFrame& in) {
-    // Tunables (frame-based)
-    constexpr float accel = 0.7f;
-    constexpr float airAccel = 0.45f;
-    constexpr float maxVx = 6.0f;
-    constexpr float friction = 0.90f;
-    constexpr float gravity = 0.45f;
-    constexpr float maxFall = 12.0f;
-    constexpr float jumpVel = -10.5f;
+    float dir = 0.0f;
+    // Horizontal movement
+    if (in.down(input::GameAction::Left))  dir -= 1.0f;
+    if (in.down(input::GameAction::Right)) dir += 1.0f;
 
-    // Update jump buffer / coyote
-    if (c.grounded) c.coyoteFrames = 6;
-    else if (c.coyoteFrames > 0) c.coyoteFrames--;
+    constexpr float airAccel    = 0.25;
+    constexpr float groundAccel = 0.6f;
+    constexpr float maxSpeed    = 6.0f;
+    constexpr float groundFriction    = 0.85f;
 
-    if (in.down(input::GameAction::Jump)) {
-        c.jumpBufferFrames = 6;
-    } else if (c.jumpBufferFrames > 0) {
-        c.jumpBufferFrames--;
-    }
+    const bool isNotMoving  = dir == 0.0f;
+    const float accel = c.body.grounded ? groundAccel : airAccel;
 
-    // Horizontal input
-    float ax = 0.0f;
-    if (in.down(input::GameAction::Left))  ax -= 1.0f;
-    if (in.down(input::GameAction::Right)) ax += 1.0f;
-
-    const float useAccel = c.grounded ? accel : airAccel;
-    c.vx += ax * useAccel;
+    // Accelerate
+    c.body.vel.x += dir * accel;
 
     // Clamp speed
-    c.vx = std::clamp(c.vx, -maxVx, maxVx);
+    c.body.vel.x = std::clamp(c.body.vel.x, -maxSpeed, maxSpeed);
 
-    // Friction if grounded and no input
-    if (c.grounded && ax == 0.0f) {
-        c.vx *= friction;
-        if (c.vx > -0.05f && c.vx < 0.05f) c.vx = 0.0f;
+    // Friction (only on ground)
+    if (isNotMoving && c.body.grounded) {
+        c.body.vel.x *= groundFriction;
+        if (std::abs(c.body.vel.x) < 0.05f)
+            c.body.vel.x = 0.0f;
     }
 
-    // Jump (buffered + coyote)
+    // Update coyote and grounded check
+    if (c.body.grounded)
+        c.coyoteFrames = 6;
+    else if (c.coyoteFrames > 0)
+        c.coyoteFrames--;
+
+    // Update jump buffer
+    if (in.down(input::GameAction::Jump))
+        c.jumpBufferFrames = 6;
+    else if (c.jumpBufferFrames > 0)
+        c.jumpBufferFrames--;
+    
+    // Apply jump
     if (c.jumpBufferFrames > 0 && c.coyoteFrames > 0) {
-        c.vy = jumpVel;
-        c.grounded = false;
-        c.coyoteFrames = 0;
+        c.body.vel.y = c.jumpImpulse;
         c.jumpBufferFrames = 0;
-    }
-
-    // Gravity
-    c.vy += gravity;
-    if (c.vy > maxFall) c.vy = maxFall;
-
-    // Integrate
-    c.x += c.vx;
-    c.y += c.vy;
-
-    // Walls
-    if (c.x < LeftWall)  { c.x = LeftWall;  c.vx = 0; }
-    if (c.x > RightWall) { c.x = RightWall; c.vx = 0; }
-
-    // Ground collision
-    if (c.y >= GroundY) {
-        c.y = GroundY;
-        c.vy = 0.0f;
-        c.grounded = true;
-    } else {
-        c.grounded = false;
+        c.coyoteFrames = 0;
     }
 }
 
-} // namespace match
+}

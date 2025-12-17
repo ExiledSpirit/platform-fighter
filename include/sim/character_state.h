@@ -1,19 +1,18 @@
 #pragma once
+#include "physics/physics_body.h"
 #include <cstdint>
 
 namespace sim {
 
 struct CharacterState {
-    float x = 200.0f;
-    float y = 200.0f;
-    float vx = 0.0f;
-    float vy = 0.0f;
+    physics::PhysicsBody body;
 
-    bool grounded = false;
+    // Jump buffer/ coyote state
+    int jumpBufferFrames = 0;
+    int coyoteFrames = 0;
 
-    // jump buffering / coyote time (very “fighter” friendly)
-    std::uint8_t coyoteFrames = 0;
-    std::uint8_t jumpBufferFrames = 0;
+    float moveSpeed = 6.0f;
+    float jumpImpulse = -10.0f;
 };
 
 } // namespace sim

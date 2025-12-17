@@ -5,7 +5,10 @@
 namespace screens {
 
 MatchScreen::MatchScreen(core::EventBus& bus, input::InputRouter& router)
-  : events(bus), inputRouter(router) {
+  : events(bus)
+  , inputRouter(router)
+  , stage(world::Stage::makeTestStage())
+  , fc(stage) {
     TraceLog(LOG_INFO, "MatchScreen CTOR");
     resetMatch();
   }
@@ -16,7 +19,6 @@ void MatchScreen::onEnter() {
 }
 
 void MatchScreen::resetMatch() {
-  fc = match::FrameController{};
   replay.stopPlayback();
   replay.stopRecording();
 }
@@ -34,10 +36,6 @@ void MatchScreen::update() {
     replay.push(in);
   }
 
-  if (in.down(input::GameAction::Left)) {
-    int test = 0;
-  }
-
   fc.step(in);
 }
 
@@ -47,22 +45,41 @@ void MatchScreen::render() {
   ClearBackground(DARKGRAY);
   // Stage
   // TODO: unhardcode stage stuff
-  DrawLine(20, (int)match::FrameController::GroundY + 20, GetScreenWidth()-20, (int)match::FrameController::GroundY + 20, WHITE);
+  DrawLine(0, 520, GetScreenWidth(), 520, WHITE);
 
   // Character (placeholder)
   // TODO: replace for animationControl and spritesheet
-  DrawCircle((int)st.p1.x, (int)st.p1.y, 16.0f, RAYWHITE);
+  for (const auto& player : st.players) {
+    const auto& b = player.body;
+    DrawCircle((int)b.pos.x, (int)b.pos.y, 16.0f, RAYWHITE);
+  }
+
+  // Colliders
+  renderCollisionsBoxes();
 
   // dev stuff
   if (showDebug) {
-    char buf[160];
-    std::snprintf(buf, sizeof(buf),
-      "Frame: %u | grounded=%d | vX=%.2f vy=%.2f | REC:%d (%zu) PLAY:%d (%zu/%zu)",
-      st.frame, (int)st.p1.grounded, st.p1.vx, st.p1.vy,
-      (int)replay.isRecording(), replay.size(),
-      (int)replay.isPlaying(), replay.position(), replay.size()
-    );
-    DrawText(buf, 12, GetScreenHeight() - 20, 18, GREEN);
+    if (!st.players.empty()) {
+      char buf[160];
+      const auto& b = st.players[0].body;
+      std::snprintf(buf, sizeof(buf),
+        "Frame: %u | grounded=%d | vX=%.2f vY=%.2f",
+        st.frame,
+        (int)b.grounded,
+        b.vel.x,
+        b.vel.y
+      );
+
+      DrawText(buf, 12, GetScreenHeight() - 20, 18, GREEN);
+    }
+  }
+}
+
+void MatchScreen::renderCollisionsBoxes() {
+  const auto& colliders = stage.colliders();
+
+  for (const auto& collider : colliders) {
+    DrawRectangle(collider.x, collider.y, collider.w, collider.h, GREEN);
   }
 }
 
