@@ -15,10 +15,10 @@ public:
         s.m_colliders.push_back({ 0, 520, 800, 40 });
 
         // Left wall
-        s.m_colliders.push_back({ -20, 520 - 300, 40, 300 });
+        // s.m_colliders.push_back({ -20, 520 - 300, 40, 300 });
 
         // Right wall
-        s.m_colliders.push_back({ 780, 520 - 300, 40, 300 });
+        // s.m_colliders.push_back({ 780, 520 - 300, 40, 300 });
 
         return s;
     }

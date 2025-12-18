@@ -6,8 +6,11 @@ namespace input {
 enum class GameAction : std::uint8_t {
     Left = 0,
     Right = 1,
-    Jump = 2,
-    Attack = 3,
+    Down = 2,
+    Up = 3,
+    Dash = 4,
+    Jump = 5,
+    Attack = 6,
 };
 
 struct GameInputFrame {

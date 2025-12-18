@@ -49,9 +49,10 @@ void MatchScreen::render() {
 
   // Character (placeholder)
   // TODO: replace for animationControl and spritesheet
-  for (const auto& player : st.players) {
-    const auto& b = player.body;
-    DrawCircle((int)b.pos.x, (int)b.pos.y, 16.0f, RAYWHITE);
+  for (int i = 0; i < (int)st.players.size(); i++) {
+    const sim::CharacterState& player = st.players[i];
+    const physics::PhysicsBody body = player.body;
+    DrawCircle((int)body.pos.x, (int)body.pos.y, 16.0f, RAYWHITE);
   }
 
   // Colliders
@@ -79,7 +80,7 @@ void MatchScreen::renderCollisionsBoxes() {
   const auto& colliders = stage.colliders();
 
   for (const auto& collider : colliders) {
-    DrawRectangle(collider.x, collider.y, collider.w, collider.h, GREEN);
+    DrawRectangle(collider.x, collider.y, collider.w, collider.h, {0, 228, 48, 100});
   }
 }
 

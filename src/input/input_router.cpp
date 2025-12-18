@@ -37,8 +37,11 @@ input::GameInputFrame input::InputRouter::sampleGameplay() const {
     input::GameInputFrame f;
     f.set(GameAction::Left,  input.isKeyDown(KEY_A) || input.isKeyDown(KEY_LEFT));
     f.set(GameAction::Right, input.isKeyDown(KEY_D) || input.isKeyDown(KEY_RIGHT));
+    f.set(GameAction::Down, input.isKeyDown(KEY_S) || input.isKeyDown(KEY_DOWN));
+    f.set(GameAction::Up, input.isKeyDown(KEY_W) || input.isKeyDown(KEY_UP));
     f.set(GameAction::Jump,  input.isKeyDown(KEY_SPACE));
     f.set(GameAction::Attack,input.isKeyDown(KEY_J));
+    f.set(GameAction::Dash,input.isKeyDown(KEY_A));
     return f;
 }
 } // namespace input
