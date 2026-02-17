@@ -3,13 +3,16 @@
 
 constexpr int JUMP_BUFFER = 6;
 constexpr int COYOTE_FRAMES = 6;
-
-constexpr int SHORT_HOP_FRAMES = 8; // if holding between 1~7 frames perform short hop
+constexpr int SHORT_HOP_FRAMES = 8;
 
 constexpr float JUMP_VEL_SHORT = -7.0f;
-constexpr float JUMP_VEL_FULL = -9.0f;
+constexpr float JUMP_VEL_FULL  = -9.0f;
+
+constexpr int DASH_FRAMES = 12;
+constexpr float DASH_SPEED = 9.5f;
 
 constexpr float FAST_FALL_SPEED = 12.0f;
+constexpr int DASH_ENDLAG = 8;
 
 namespace match {
 FrameController::FrameController(const world::Stage& s)
@@ -23,13 +26,21 @@ FrameController::FrameController(const world::Stage& s)
 }
 
 void FrameController::step(const input::GameInputFrame& in) {
-    stepCharacter(st.players[0], in);
+    auto& player = st.players[0]; // only p1 for now.
+
+    updateBuffers(player, in);
+    resolveActions(player, in);
+    applyMovement(player, in);
     physics.step(st.players[0].body, stage);
+    postPhysics(player);
+
     st.frame++;
 }
 
-void FrameController::stepCharacter(sim::CharacterState& c,
-                                    const input::GameInputFrame& in)
+void FrameController::updateBuffers(
+        sim::CharacterState& c,
+        const input::GameInputFrame& in
+    )
 {
     // --- COYOTE
     if (c.body.grounded) c.coyoteFrames = COYOTE_FRAMES;
@@ -41,18 +52,69 @@ void FrameController::stepCharacter(sim::CharacterState& c,
     } else if (c.jumpBufferFrames > 0) {
         c.jumpBufferFrames--;
     }
+}
 
-    // --- JUMP HANDLING
+void FrameController::resolveActions(sim::CharacterState& c,
+                                     const input::GameInputFrame& in)
+{
+    // --- DASH START
+    if (c.action == sim::ActionState::Normal &&
+        c.canDash &&
+        in.down(input::GameAction::Dash))
+    {
+        c.action = sim::ActionState::Dashing;
+        c.dashFrames = DASH_FRAMES;
+        c.canDash = false;
+
+        float dir = 0.0f;
+        if (in.down(input::GameAction::Left)) {
+            dir = -1.0f;
+            c.facing = sim::Facing::Left;
+        }
+        if (in.down(input::GameAction::Right)) {
+            dir = 1.0f;
+            c.facing = sim::Facing::Right;
+        }
+        if (dir == 0.0f) dir = (int)c.facing; // facing later
+
+        c.body.vel.x = dir * DASH_SPEED;
+        c.body.vel.y = 0.0f;
+        return;
+    }
+
+    // --- JUMP START
     if (c.jumpBufferFrames > 0 && c.coyoteFrames > 0) {
-        c.grounded = false;
+        if (c.action == sim::ActionState::Dashing) {
+            c.action = sim::ActionState::Normal;
+        }
+
         c.jumping = true;
         c.jumpHoldFrames = 0;
         c.jumpBufferFrames = 0;
         c.coyoteFrames = 0;
 
-        // Initial velocity
         c.body.vel.y = JUMP_VEL_SHORT;
         c.body.grounded = false;
+    }
+}
+
+void FrameController::applyMovement(sim::CharacterState& c,
+                                    const input::GameInputFrame& in)
+{
+    // --- LANDING LAG
+    if (c.landingLagFrames > 0) {
+        c.landingLagFrames--;
+        return; // blocks movement & actions, NOT physics
+    }
+
+    // --- DASH CONTINUE
+    if (c.action == sim::ActionState::Dashing) {
+        c.dashFrames--;
+        if (c.dashFrames <= 0) {
+            c.action = sim::ActionState::Normal;
+            c.landingLagFrames = DASH_ENDLAG;
+        }
+        return; // IMPORTANT skips movement logic so friction doesnt apply
     }
 
     // --- JUMP HOLD
@@ -60,56 +122,59 @@ void FrameController::stepCharacter(sim::CharacterState& c,
         c.jumpHoldFrames++;
     }
 
-    // --- RELEASE JUMP (short/med/full hop handling)
-    if (c.jumping && (!in.down(input::GameAction::Jump) || c.jumpHoldFrames > SHORT_HOP_FRAMES)) {
-        float vel;
-
-        if (c.jumpHoldFrames <= SHORT_HOP_FRAMES)
-            vel = JUMP_VEL_SHORT;
-        else
-            vel = JUMP_VEL_FULL;
-
-        c.body.vel.y = vel;
+    // --- RELEASE JUMP
+    if (c.jumping &&
+        (!in.down(input::GameAction::Jump) ||
+         c.jumpHoldFrames > SHORT_HOP_FRAMES))
+    {
+        if (c.body.vel.y < JUMP_VEL_FULL) {
+            c.body.vel.y = JUMP_VEL_FULL;
+        }
         c.jumping = false;
     }
 
     // --- HORIZONTAL MOVEMENT
     float dir = 0.0f;
-
     if (in.down(input::GameAction::Left))  dir -= 1.0f;
     if (in.down(input::GameAction::Right)) dir += 1.0f;
-    const bool changedDirection = !((dir >= 0 && c.body.vel.x >= 0) || (dir <= 0 && c.body.vel.x <= 0));
 
-    constexpr float airAccel    = 0.6;
+    // FACING DIRECTION
+    if (dir != 0.0f)  c.facing = (dir < 0) ? sim::Facing::Left : sim::Facing::Right;
+
+    constexpr float airAccel = 0.6f;
     constexpr float groundAccel = 0.6f;
-    constexpr float maxSpeed    = 6.0f;
-    constexpr float groundFriction    = 0.85f;
+    constexpr float maxSpeed = 6.0f;
+    constexpr float friction = 0.85f;
 
-    const bool isNotMoving = (dir == 0.0f);
-    const bool isFalling = c.body.vel.y >= 0;
-    const bool isGrounded = c.body.grounded;
     const float accel = c.body.grounded ? groundAccel : airAccel;
 
-    // Reset vel if change directions
-    if (changedDirection) c.body.vel.x = 0;
-
-    // Accelerate
     c.body.vel.x += dir * accel;
-
-    // Clamp speed
     c.body.vel.x = std::clamp(c.body.vel.x, -maxSpeed, maxSpeed);
 
-    // Friction (only on ground)
-    if (isNotMoving && (isGrounded || isFalling)) {
-        c.body.vel.x *= groundFriction;
-        if (std::abs(c.body.vel.x) < 0.10f)
+    if (dir == 0.0f && c.body.grounded) {
+        c.body.vel.x *= friction;
+        if (std::abs(c.body.vel.x) < 0.1f)
             c.body.vel.x = 0.0f;
     }
 
-    // handle fast fall
-    if (isFalling && in.down(input::GameAction::Down)) {
+    // --- FAST FALL
+    if (!c.body.grounded &&
+        c.body.vel.y > 0 &&
+        in.down(input::GameAction::Down)) {
         c.body.vel.y = FAST_FALL_SPEED;
     }
 }
 
+void FrameController::postPhysics(sim::CharacterState& c)
+{
+    if (c.body.grounded) {
+        c.jumping = false;
+        c.canDash = true;
+
+        if (c.body.prevGrounded == false) {
+            c.landingLagFrames = 6;
+        }
+    }
+    c.body.prevGrounded = c.body.grounded;
+}
 }

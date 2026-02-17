@@ -18,6 +18,10 @@ private:
     physics::PhysicsSystem physics;
 
     void stepCharacter(sim::CharacterState& c, const input::GameInputFrame& in);
+    void updateBuffers(sim::CharacterState& c, const input::GameInputFrame& in); // timers and buffers
+    void resolveActions(sim::CharacterState& c, const input::GameInputFrame& in); // jump and dash start handling
+    void applyMovement(sim::CharacterState& c, const input::GameInputFrame& in); // acceleration and momentum
+    void postPhysics(sim::CharacterState& c); // landing and flag resets
 };
 
 } // namespace match

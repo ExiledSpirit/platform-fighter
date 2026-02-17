@@ -64,11 +64,12 @@ void MatchScreen::render() {
       char buf[160];
       const auto& b = st.players[0].body;
       std::snprintf(buf, sizeof(buf),
-        "Frame: %u | grounded=%d | vX=%.2f vY=%.2f",
+        "Frame: %u | grounded=%d | vX=%.2f vY=%.2f | facing: %s",
         st.frame,
         (int)b.grounded,
         b.vel.x,
-        b.vel.y
+        b.vel.y,
+        st.players[0].facing == sim::Facing::Left ? "Left" : "Right"
       );
 
       DrawText(buf, 12, GetScreenHeight() - 20, 18, GREEN);

@@ -1,14 +1,15 @@
 #pragma once
-#include "math/vec2.h"
+#include "math/vec3.h"
 
 namespace physics {
 
 struct PhysicsBody {
-    math::Vec2 pos;
-    math::Vec2 vel;
-    math::Vec2 halfSize;
+    math::Vec3 pos;
+    math::Vec3 vel;
+    math::Vec3 halfSize;
 
     bool grounded = false;
+    bool prevGrounded = false;
 };
 
 } // namespace physics
