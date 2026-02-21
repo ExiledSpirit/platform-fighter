@@ -1,0 +1,7 @@
+{
+  "model": "resources/models/characters/fox/fox.fbx",
+  "moveSpeed": 6.5,
+  "jumpForce": 12.0,
+  "animations": {
+  }
+}

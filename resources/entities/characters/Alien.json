@@ -1,0 +1,9 @@
+{
+  "model": "resources/models/characters/alien/Alien.glb",
+  "moveSpeed": 6.5,
+  "jumpForce": 12.0,
+  "animations": {
+    "Idle": "Idle",
+    "Walk": "Walk"
+  }
+}
