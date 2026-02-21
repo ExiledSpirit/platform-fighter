@@ -1,25 +1,29 @@
 CXX      = g++
-CXXFLAGS = -I"$(CURDIR)/include" -std=c++17 -Wall -Wextra -g
-LDFLAGS  = -L"$(CURDIR)/lib" -lraylib -lgdi32 -lwinmm
+# pkg-config -cflags adds the necessary include paths
+CXXFLAGS = -std=c++17 -Wall -Wextra -g -Isrc -Iinclude $(shell pkg-config --cflags raylib)
+# Raylib dependency location
+LDFLAGS  = $(shell pkg-config --libs raylib)
 
-SRC_WIN := $(shell dir /s /b "$(CURDIR)\src\*.cpp" 2>nul)
-SRC     := $(subst \,/,$(SRC_WIN))
+# Get .cpp files recursively
+SRC     := $(shell find src -name "*.cpp")
 
-# Convert absolute src path -> relative src path for OBJ mapping:
-SRC_REL := $(patsubst $(CURDIR)/%,%,$(SRC))
+# Map objects to the build folder
+OBJ := $(patsubst src/%.cpp,build/%.o,$(SRC))
+OUT := main
 
-OBJ := $(patsubst src/%.cpp,build/%.o,$(SRC_REL))
-OUT := main.exe
+.PHONY: all clean
 
-default: $(OUT)
+all: $(OUT)
 
 $(OUT): $(OBJ)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 build/%.o: src/%.cpp
-	@if not exist "$(subst /,\,$(dir $@))" mkdir "$(subst /,\,$(dir $@))"
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@if exist build rmdir /S /Q build
-	@if exist $(OUT) del /Q $(OUT)
+	rm -rf build $(OUT)
+
+run: $(OUT)
+	./$(OUT)
